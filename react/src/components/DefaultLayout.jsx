@@ -16,6 +16,7 @@ export default function DefaultLayout() {
     e.preventDefault();
 
     axiosClient.post('/logout')
+
       .then(() => {
         setUser({})
         setToken(null)
@@ -45,9 +46,9 @@ export default function DefaultLayout() {
           </div>
           <div className="navbar-end">
 
-            <a href="#" onClick={onLogout} className="btn btn-ghost btn-circle">
+            <button  onClick={onLogout} className="btn btn-ghost btn-circle">
                 <UilSignOutAlt className="fill-red-400" />
-            </a>
+            </button>
           </div>
         </div>
       </div>

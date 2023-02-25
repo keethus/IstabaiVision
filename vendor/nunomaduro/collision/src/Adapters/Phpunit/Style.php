@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace NunoMaduro\Collision\Adapters\Phpunit;
 
+use Closure;
 use NunoMaduro\Collision\Adapters\Phpunit\Printers\DefaultPrinter;
 use NunoMaduro\Collision\Exceptions\ShouldNotHappen;
 use NunoMaduro\Collision\Exceptions\TestException;
 use NunoMaduro\Collision\Writer;
+use Pest\Expectation;
 use PHPUnit\Event\Code\Throwable;
 use PHPUnit\Event\Telemetry\Info;
 use PHPUnit\Framework\ExpectationFailedException;
@@ -15,12 +17,14 @@ use PHPUnit\Framework\IncompleteTestError;
 use PHPUnit\TestRunner\TestResult\TestResult as PHPUnitTestResult;
 use PHPUnit\TextUI\Configuration\Registry;
 use ReflectionClass;
+use ReflectionFunction;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use function Termwind\render;
 use function Termwind\renderUsing;
 use Termwind\Terminal;
 use function Termwind\terminal;
+use Whoops\Exception\Frame;
 use Whoops\Exception\Inspector;
 
 /**
@@ -39,7 +43,7 @@ final class Style
     /**
      * @var string[]
      */
-    private const TYPES = [TestResult::DEPRECATED, TestResult::FAIL, TestResult::WARN, TestResult::RISKY, TestResult::INCOMPLETE, TestResult::TODO,  TestResult::SKIPPED, TestResult::PASS];
+    private const TYPES = [TestResult::DEPRECATED, TestResult::FAIL, TestResult::WARN, TestResult::RISKY, TestResult::INCOMPLETE, TestResult::TODO, TestResult::SKIPPED, TestResult::PASS];
 
     /**
      * Style constructor.
@@ -164,7 +168,8 @@ final class Style
                 <div class="mx-2 text-red">
                     <hr/>
                 </div>
-            HTML);
+            HTML
+            );
 
             $testCaseName = $testResult->testCaseName;
             $description = $testResult->description;
@@ -332,6 +337,9 @@ final class Style
             '/vendor\/coduo\/php-matcher\/src\/PHPUnit/',
             '/vendor\/sulu\/sulu\/src\/Sulu\/Bundle\/TestBundle\/Testing/',
             '/vendor\/webmozart\/assert/',
+
+            $this->ignorePestPipes(...),
+            $this->ignorePestExtends(...),
         ]);
 
         /** @var \Throwable $throwable */
@@ -428,5 +436,70 @@ final class Style
                 </span>%s
             </div>
         HTML, $seconds === '' ? '' : 'flex space-x-1 justify-between', $truncateClasses, $result->color, $result->icon, $description, $warning, $seconds));
+    }
+
+    /**
+     * @param  Frame  $frame
+     */
+    private function ignorePestPipes($frame): bool
+    {
+        if (class_exists(Expectation::class)) {
+            $reflection = new ReflectionClass(Expectation::class);
+
+            /** @var array<string, array<Closure(Closure, mixed ...$arguments): void>> $expectationPipes */
+            $expectationPipes = $reflection->getStaticPropertyValue('pipes', []);
+
+            foreach ($expectationPipes as $pipes) {
+                foreach ($pipes as $pipeClosure) {
+                    if ($this->isFrameInClosure($frame, $pipeClosure)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  Frame  $frame
+     */
+    private function ignorePestExtends($frame): bool
+    {
+        if (class_exists(Expectation::class)) {
+            $reflection = new ReflectionClass(Expectation::class);
+
+            /** @var array<string, Closure> $extends */
+            $extends = $reflection->getStaticPropertyValue('extends', []);
+
+            foreach ($extends as $extendClosure) {
+                if ($this->isFrameInClosure($frame, $extendClosure)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  Frame  $frame
+     */
+    private function isFrameInClosure($frame, Closure $closure): bool
+    {
+        $reflection = new ReflectionFunction($closure);
+
+        $sanitizedPath = (string) str_replace('\\', '/', (string) $frame->getFile());
+
+        /** @phpstan-ignore-next-line */
+        $sanitizedClosurePath = (string) str_replace('\\', '/', $reflection->getFileName());
+
+        if ($sanitizedPath === $sanitizedClosurePath) {
+            if ($reflection->getStartLine() <= $frame->getLine() && $frame->getLine() <= $reflection->getEndLine()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

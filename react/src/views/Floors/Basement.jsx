@@ -7,19 +7,18 @@ import VectorMap, {
 import {roomsData, buildingData, insideBuildingData, doorsData } from "./BasementPolygons";
 
 
+
 const projection = {
-  aspectRatio: 1,
-  to: ([l, lt]) => [l / 1000000, lt / 1000000],
-  from: ([x, y]) => [x * 100, y * 100],
+    to: ([l, lt]) => [l / 900000, lt / 900000],
+    from: ([x, y]) => [x * 900000, y * 900000],
 };
 const bounds = [-50000, 50000, 50000, -500000];
 export default function Basement() {
   return (
     <div className="p-6 ">
-
       <VectorMap
         id="vector-map"
-
+        projection={projection}
         touchEnabled={true}
         maxZoomFactor={12}
         panningEnabled={true}

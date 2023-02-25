@@ -343,6 +343,8 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
      * Returns a string representation of the test case.
      *
      * @throws Exception
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function toString(): string
     {
@@ -355,6 +357,9 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
         return $buffer . $this->dataSetAsStringWithData();
     }
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     final public function count(): int
     {
         return 1;
@@ -417,6 +422,9 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
         $this->doesNotPerformAssertions = true;
     }
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     final public function status(): TestStatus
     {
         return $this->status;
@@ -685,12 +693,16 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
                     $this->invokeAfterClassHookMethods($hookMethods, $emitter);
                 }
             }
-        } catch (Throwable $_e) {
-            $e = $e ?? $_e;
-        }
+        } catch (Throwable $exceptionRaisedDuringTearDown) {
+            if (!isset($e)) {
+                $this->status = TestStatus::error($exceptionRaisedDuringTearDown->getMessage());
+                $e            = $exceptionRaisedDuringTearDown;
 
-        if (isset($_e)) {
-            $this->status = TestStatus::error($_e->getMessage());
+                $emitter->testErrored(
+                    $this->valueObjectForEvents(),
+                    Event\Code\Throwable::from($exceptionRaisedDuringTearDown)
+                );
+            }
         }
 
         clearstatcache();

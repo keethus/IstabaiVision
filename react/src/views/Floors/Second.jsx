@@ -7,17 +7,17 @@ import VectorMap, {
 import {roomsData, buildingData, insideBuildingData, doorsData } from "./secondFloorPolygons";
 
 const projection = {
-  to: ([l, lt]) => [l / 400000, lt / 400000],
-  from: ([x, y]) => [x * 200, y * 100],
+    to: ([l, lt]) => [l / 900000, lt / 900000],
+    from: ([x, y]) => [x * 900000, y * 900000],
 };
 const mapBounds = [-400000, 400000, 400000, -400000];
 export default function Second() {
   return (
     <div className="p-6 ">
-
       <VectorMap
         id="vector-map"
         maxZoomFactor={12}
+        projection={projection}
       >
         <Size height={700} />
         <Layer

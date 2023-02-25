@@ -2,6 +2,32 @@
 
 All notable changes of the PHPUnit 10.0 release series are documented in this file using the [Keep a CHANGELOG](https://keepachangelog.com/) principles.
 
+## [10.0.11] - 2023-02-20
+
+### Fixed
+
+* [#5192](https://github.com/sebastianbergmann/phpunit/issues/5192): Running an empty test shows help screen
+* [#5224](https://github.com/sebastianbergmann/phpunit/issues/5224): PHPUnit looks "at the clock" and trusts `$_SERVER['REQUEST_TIME_FLOAT']`
+
+## [10.0.10] - 2023-02-20
+
+### Fixed
+
+* [#5218](https://github.com/sebastianbergmann/phpunit/issues/5218): Code Coverage does not work for tests run in separate process(es)
+* [#5219](https://github.com/sebastianbergmann/phpunit/issues/5219): Exceptions thrown in event subscribers affect how tests are run and/or how their outcome is evaluated
+
+## [10.0.9] - 2023-02-19
+
+### Fixed
+
+* Corrected the fix for [#5210](https://github.com/sebastianbergmann/phpunit/issues/5210)
+
+## [10.0.8] - 2023-02-18
+
+### Fixed
+
+* [#5210](https://github.com/sebastianbergmann/phpunit/issues/5210): Exceptions raised in `TestCase::tearDown()` are not handled correctly
+
 ## [10.0.7] - 2023-02-08
 
 ### Changed
@@ -111,6 +137,7 @@ All notable changes of the PHPUnit 10.0 release series are documented in this fi
 * The `forceCoversAnnotation` attribute of the `<phpunit>` element of PHPUnit's XML configuration file has been renamed to `requireCoverageMetadata`
 * The `beStrictAboutCoversAnnotation` attribute of the `<phpunit>` element of PHPUnit's XML configuration file has been renamed to `beStrictAboutCoverageMetadata`
 * The public methods of `PHPUnit\Framework\Assert` and `PHPUnit\Framework\TestCase` are now `final`
+* The `PHPUnit\Framework\TestCase::onNotSuccessfulTest()` method can no longer manipulate the outcome of a test
 * The `--testdox` CLI option no longer replaces the default progress output, but only the default result output
 * The CLI test runner now only stops after a test errored when `--stop-on-error` or `--stop-on-defect` is used
 * The CLI test runner now only stops after a test failed when `--stop-on-failure` or `--stop-on-defect` is used
@@ -183,6 +210,10 @@ All notable changes of the PHPUnit 10.0 release series are documented in this fi
 * PHP 7.3, PHP 7.4, and PHP 8.0 are no longer supported
 * `phpunit/php-code-coverage` [no longer supports PHPDBG and Xdebug 2](https://github.com/sebastianbergmann/php-code-coverage/blob/10.0.0/ChangeLog.md#1000---2023-02-03)
 
+[10.0.11]: https://github.com/sebastianbergmann/phpunit/compare/10.0.10...10.0.11
+[10.0.10]: https://github.com/sebastianbergmann/phpunit/compare/10.0.9...10.0.10
+[10.0.9]: https://github.com/sebastianbergmann/phpunit/compare/10.0.8...10.0.9
+[10.0.8]: https://github.com/sebastianbergmann/phpunit/compare/10.0.7...10.0.8
 [10.0.7]: https://github.com/sebastianbergmann/phpunit/compare/10.0.6...10.0.7
 [10.0.6]: https://github.com/sebastianbergmann/phpunit/compare/10.0.5...10.0.6
 [10.0.5]: https://github.com/sebastianbergmann/phpunit/compare/10.0.4...10.0.5

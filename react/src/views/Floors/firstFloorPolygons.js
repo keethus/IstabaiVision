@@ -431,7 +431,7 @@ export const doorsData = {
     },  {
       type: 'Feature',
       properties: {
-        name: 'Room 7',
+        name: 'Akvārijs',
         square: 576,
       },
       geometry: {
@@ -582,7 +582,7 @@ export const roomsData = {
     {
       type: 'Feature',
       properties: {
-        name: 'Main',
+        name: 'Lobby',
         square: 576,
       },
       geometry: {
@@ -743,7 +743,7 @@ export const roomsData = {
     }, {
       type: 'Feature',
       properties: {
-        name: 'Room 7',
+        name: 'Akvārijs',
         square: 288,
       },
       geometry: {
