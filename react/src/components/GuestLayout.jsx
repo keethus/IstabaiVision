@@ -7,7 +7,7 @@ import logo from "../assets/images/hex-logo.png";
 export default function GuestLayout() {
   const {token} = useStateContext()
   if(token) {
-    return <Navigate to='/users' />
+    return <Navigate to='/' />
   }
 
   return (
