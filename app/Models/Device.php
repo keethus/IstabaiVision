@@ -13,6 +13,9 @@ class Device extends Model
         'device_id',
         'longitude',
         'latitude',
+        'user_id',
+        'floor',
+        'icon',
     ];
 
 }

@@ -22,20 +22,39 @@ export default function DefaultLayout() {
     const [warnings, setWarnings] = useState(null);
     const [loading, setLoading] = useState(true);
     const [devices, setDevices] = useState(null);
+    const [rooms, setRooms] = useState(null);
 
     const initialState = {
-        deviceDetails: null
+        deviceDetails: null,
+        placingMarker: false,
+        markerPlaced: false,
+        markerLocation: null,
+        floor: 1,
+        floorDevices: null
     }
+
     function deviceReducer(state = initialState, action) {
         switch (action.type) {
             case 'SET_DEVICE_DETAILS':
                 return { ...state, deviceDetails: action.payload };
+            case 'SET_PLACING_MARKER':
+                return { ...state, placingMarker: action.payload };
+            case 'SET_MARKER_PLACED':
+                return { ...state, markerPlaced: action.payload };
+            case 'SET_MARKER_LOCATION':
+                return { ...state, markerLocation: action.payload };
+            case 'SET_FLOOR':
+                return { ...state, floor: action.payload };
+            case 'SET_FLOOR_DEVICES':
+                return { ...state, floorDevices: action.payload };
             default:
                 return state;
         }
     }
 
     const store = createStore(deviceReducer)
+
+
 
     moment.locale('LV')
     if (!token) {
@@ -45,7 +64,24 @@ export default function DefaultLayout() {
     useEffect(() => {
         getDevices()
         getWarnings()
+        getRooms()
     }, [])
+
+    const getRooms = () => {
+        setLoading(true)
+        fetch(`https://api.istabai.com/2/rooms.list.json?api_key=${import.meta.env.VITE_ISTABAI_API_KEY}&home_id=1155`)
+            .then(r => r.json())
+            .then(data => {
+                setLoading(false)
+                setRooms(data)
+                console.log('istabai data', data)
+
+            })
+            .catch(e => {
+                setLoading(false)
+                console.log('istabai error', e)
+            })
+    }
 
     const getWarnings = () => {
         setLoading(true)
@@ -89,7 +125,7 @@ export default function DefaultLayout() {
             })
     }, [])
 
-
+    // Q:
 
 
     return (
@@ -101,7 +137,7 @@ export default function DefaultLayout() {
                         <div className="p-4 sm:ml-64">
                             <Navigation onLogout={onLogout}/>
                             <main>
-                                <DeviceDetailWindow/>
+                                <DeviceDetailWindow className={'z-50'} style={'z-index:'}/>
                                 <Outlet/>
                             </main>
                         </div>

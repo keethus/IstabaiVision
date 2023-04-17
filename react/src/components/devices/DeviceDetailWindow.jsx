@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {
     UilBatteryBolt,
     UilBatteryEmpty, UilExclamationCircle,
@@ -12,6 +12,7 @@ import DeviceDetailExtraInfo from "./DeviceDetailExtraInfo.jsx";
 import moment from "moment/moment.js";
 import {Button} from "react-daisyui";
 import {getSignalStrengthClass} from "../utils.jsx";
+import axiosClient from "../../axios-client.js";
 
 function DeviceDetailWindow() {
     const [buttonClass, setButtonClass] = useState('bg-neutral-800')
@@ -19,19 +20,62 @@ function DeviceDetailWindow() {
     const [buttonText, setButtonText] = useState('Place on map')
     const device = useSelector(state => state.deviceDetails)
 
+    const markerPlaced = useSelector(state => state.markerPlaced);
+    const markerLocation = useSelector(state => state.markerLocation)
+    const floor = useSelector(state => state.floor)
+
+    const dispatch = useDispatch();
+
+
     useEffect(() => {
         setButtonActive(false)
     }, [device])
 
     useEffect(() => {
         if(buttonActive === true) {
+            dispatch({ type: 'SET_PLACING_MARKER', payload: true });
             setButtonClass('bg-primary text-white')
             setButtonText('Cancel')
         } else {
+            dispatch({ type: 'SET_PLACING_MARKER', payload: false });
+            dispatch({ type: 'SET_MARKER_PLACED', payload: false });
+            dispatch({ type: 'SET_MARKER_LOCATION', payload: null })
+
             setButtonClass('bg-neutral-800')
             setButtonText('Place on map')
         }
     }, [buttonActive])
+
+    useEffect(() => {
+        if(markerPlaced) {
+            setButtonClass('bg-neutral-800')
+        }
+    }, [markerPlaced])
+
+    const onSubmit = (e) => {
+        e.preventDefault();
+        const payload = {
+            device_id: device.id,
+            latitude: markerLocation.features[0].geometry.coordinates[0],
+            longitude: markerLocation.features[0].geometry.coordinates[1],
+            floor: floor
+        }
+
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/device/store`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
 
     const renderBattery = () => {
         if (device.battery) {
@@ -105,10 +149,24 @@ function DeviceDetailWindow() {
 
         return (
             <div className="absolute bottom-0 right-0 w-96 ">
-                {buttonActive &&
-                    <div className="modal-box bg-neutral-900 shadow-lg flex h-auto animate-pulse">
+                {buttonActive && !markerPlaced &&
+                    <div className="modal-box bg-neutral-900 shadow-lg flex h-auto  animate-pulse">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-info flex-shrink-0 w-6 h-6 mr-2"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Click on map to place marker!
+                    </div>
+                }
+                {markerPlaced &&
+                    <div className="modal-box bg-neutral-900 shadow-lg flex h-auto flex-col gap-4">
+                        <div className="flex">
+                            <img src="https://img.icons8.com/nolan/512/unchecked-circle.png" alt="" style={{width: 24, height: 24}} className="mr-2"/>
+                            Confirm device location
+                        </div>
+                        <div>
+                            <Button onClick={onSubmit} className={`btn btn-wide w-full hover:bg-neutral-700 border-1 border-neutral-700  bg-primary text-white`} >
+                                Save
+                            </Button>
+                        </div>
+
                     </div>
                 }
                 <div className="modal-box bg-neutral-900 shadow-lg h-auto">

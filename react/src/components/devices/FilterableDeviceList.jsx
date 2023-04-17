@@ -20,9 +20,10 @@ function FilterableDeviceList({devices}) {
         }
     }, [filter, devices]);
 
+
+
     function handleDeviceChange(deviceDetails){
         dispatch({ type: 'SET_DEVICE_DETAILS', payload: deviceDetails });
-
     }
 
     return (
