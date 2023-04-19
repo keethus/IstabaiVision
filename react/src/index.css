@@ -33,5 +33,12 @@
   transition: opacity 200ms;
 }
 
-
-
+.room-tooltip {
+  font-size: 16px;
+  font-weight: 500;
+  text-shadow: 1px 1px black;
+  color: white !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: 0 0 0 !important;
+}

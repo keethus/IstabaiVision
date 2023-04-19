@@ -16,3 +16,33 @@ export const getSignalStrengthClass = (signalStrength) => {
     );
     return item ? item.class : "";
 };
+
+export  function scaleDown(geojson, factor) {
+    const scaledGeojson = JSON.parse(JSON.stringify(geojson)); // make a deep copy of the geojson
+    scaledGeojson.features.forEach(feature => {
+        feature.geometry.coordinates = feature.geometry.coordinates.map(polygon => {
+            return polygon.map(ring => {
+                return ring.map(coordinates => {
+                    return coordinates / factor;
+                });
+            });
+        });
+    });
+    return scaledGeojson;
+}
+
+export const buildingStyle = {
+    color: '#636363',
+    weight: 1,
+    fillOpacity: 1,
+};
+
+export const getRooms = async () => {
+    try {
+        const response = await fetch(`https://api.istabai.com/2/rooms.list.json?api_key=${import.meta.env.VITE_ISTABAI_API_KEY}&home_id=1155`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        return error;
+    }
+};

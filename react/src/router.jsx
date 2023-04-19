@@ -30,7 +30,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/second',
-        element: <Second />
+        element: <Second  />
       },
     ]
   },

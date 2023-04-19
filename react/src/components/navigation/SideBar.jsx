@@ -1,6 +1,8 @@
 import FilterableDeviceList from "../devices/FilterableDeviceList.jsx";
+import {useSelector} from "react-redux";
 
 function SideBar({devices}) {
+
     return <>
         <button data-drawer-target="cta-button-sidebar" data-drawer-toggle="cta-button-sidebar"
                 aria-controls="cta-button-sidebar" type="button"

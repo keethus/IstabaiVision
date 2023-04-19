@@ -29,6 +29,7 @@ export default function Signup() {
           setErrors(response.data.errors)
         }
       })
+
   }
 
   return (

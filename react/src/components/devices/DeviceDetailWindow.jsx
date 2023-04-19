@@ -12,24 +12,31 @@ import DeviceDetailExtraInfo from "./DeviceDetailExtraInfo.jsx";
 import moment from "moment/moment.js";
 import {Button} from "react-daisyui";
 import {getSignalStrengthClass} from "../utils.jsx";
-import axiosClient from "../../axios-client.js";
 
 function DeviceDetailWindow() {
     const [buttonClass, setButtonClass] = useState('bg-neutral-800')
     const [buttonActive, setButtonActive] = useState(false)
     const [buttonText, setButtonText] = useState('Place on map')
-    const device = useSelector(state => state.deviceDetails)
+    const [currentDeviceId, setCurrentDeviceId] = useState(null);
 
+    const device = useSelector(state => state.deviceDetails)
     const markerPlaced = useSelector(state => state.markerPlaced);
     const markerLocation = useSelector(state => state.markerLocation)
     const floor = useSelector(state => state.floor)
 
     const dispatch = useDispatch();
 
-
     useEffect(() => {
         setButtonActive(false)
     }, [device])
+
+    useEffect(() => {
+        if (device && device.id && device.id !== currentDeviceId) {
+            console.log('Device changed')
+            setCurrentDeviceId(device.id);
+            // A new device has been clicked, do something here
+        }
+    }, [device, currentDeviceId]);
 
     useEffect(() => {
         if(buttonActive === true) {
@@ -56,8 +63,8 @@ function DeviceDetailWindow() {
         e.preventDefault();
         const payload = {
             device_id: device.id,
-            latitude: markerLocation.features[0].geometry.coordinates[0],
-            longitude: markerLocation.features[0].geometry.coordinates[1],
+            latitude: markerLocation.features[0].geometry.coordinates[1],
+            longitude: markerLocation.features[0].geometry.coordinates[0],
             floor: floor
         }
 
@@ -71,6 +78,8 @@ function DeviceDetailWindow() {
             .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
+                dispatch({ type: 'SET_MARKER_PLACED', payload: false });
+                setButtonActive(false)
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -148,7 +157,7 @@ function DeviceDetailWindow() {
         }
 
         return (
-            <div className="absolute bottom-0 right-0 w-96 ">
+            <div className="absolute bottom-0 right-0 w-96 z-50">
                 {buttonActive && !markerPlaced &&
                     <div className="modal-box bg-neutral-900 shadow-lg flex h-auto  animate-pulse">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-info flex-shrink-0 w-6 h-6 mr-2"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>

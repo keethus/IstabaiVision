@@ -22,7 +22,6 @@ export default function DefaultLayout() {
     const [warnings, setWarnings] = useState(null);
     const [loading, setLoading] = useState(true);
     const [devices, setDevices] = useState(null);
-    const [rooms, setRooms] = useState(null);
 
     const initialState = {
         deviceDetails: null,
@@ -30,8 +29,14 @@ export default function DefaultLayout() {
         markerPlaced: false,
         markerLocation: null,
         floor: 1,
-        floorDevices: null
+        floorDevices: null,
+        allDevices: devices
     }
+
+    useEffect(() => {
+
+
+    })
 
     function deviceReducer(state = initialState, action) {
         switch (action.type) {
@@ -54,8 +59,6 @@ export default function DefaultLayout() {
 
     const store = createStore(deviceReducer)
 
-
-
     moment.locale('LV')
     if (!token) {
         return <Navigate to='/login'/>
@@ -64,35 +67,17 @@ export default function DefaultLayout() {
     useEffect(() => {
         getDevices()
         getWarnings()
-        getRooms()
-    }, [])
+    },[] )
 
-    const getRooms = () => {
-        setLoading(true)
-        fetch(`https://api.istabai.com/2/rooms.list.json?api_key=${import.meta.env.VITE_ISTABAI_API_KEY}&home_id=1155`)
-            .then(r => r.json())
-            .then(data => {
-                setLoading(false)
-                setRooms(data)
-                console.log('istabai data', data)
-
-            })
-            .catch(e => {
-                setLoading(false)
-                console.log('istabai error', e)
-            })
-    }
 
     const getWarnings = () => {
         setLoading(true)
         fetch(`https://api.istabai.com/2/homes.warnings.json?api_key=${import.meta.env.VITE_ISTABAI_API_KEY}&home_id=1155`)
             .then(r => r.json())
             .then(data => {
-                setLoading(false)
                 setWarnings(data)
             })
             .catch(e => {
-                setLoading(false)
                 console.log('istabai error', e)
             })
     }
@@ -137,7 +122,7 @@ export default function DefaultLayout() {
                         <div className="p-4 sm:ml-64">
                             <Navigation onLogout={onLogout}/>
                             <main>
-                                <DeviceDetailWindow className={'z-50'} style={'z-index:'}/>
+                                <DeviceDetailWindow />
                                 <Outlet/>
                             </main>
                         </div>
