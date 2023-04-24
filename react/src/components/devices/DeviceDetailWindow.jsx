@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {
     UilBatteryBolt,
-    UilBatteryEmpty, UilExclamationCircle,
+    UilBatteryEmpty, UilCheckCircle, UilExclamationCircle,
     UilFavorite,
     UilKeyholeCircle, UilLightbulb, UilMapMarkerEdit, UilMapMarkerPlus, UilSearch,
     UilSignal,
@@ -93,11 +93,11 @@ function DeviceDetailWindow() {
     const renderBattery = () => {
         if (device.battery) {
             return (
-                <p className="text-xs flex"><UilBatteryBolt size="16" className="self-center mr-1"/>{device.battery}%</p>
+                <p className="text-xs flex"><UilBatteryBolt size="16" className="self-center mr-1"/>{device.battery * 100}%</p>
             )
         } else if (device.battery === 0) {
             return (
-                <p className="text-xs flex"><UilBatteryEmpty size="16"  className="self-center mr-1 fill-orange-400"/>{device.battery}%</p>
+                <p className="text-xs flex"><UilBatteryEmpty size="16"  className="self-center mr-1 fill-orange-400"/>{device.battery * 100}%</p>
             )
         }
     }
@@ -216,6 +216,9 @@ function DeviceDetailWindow() {
                                 {device.error && (
                                     <p className="text-xs flex pt-4 text-red-500"><UilExclamationCircle size="16"  className="self-center mr-1 fill-red-500 "/>{device.error}</p>
                                 )}
+                                {device.is_placed &&
+                                    <p className="text-xs flex pt-4 text-green-500"><UilCheckCircle size="16"  className="self-center mr-1 fill-green-500 "/>Placed ({device.floor}) </p>
+                                }
                             </div>
                             <div className="absolute right-1 top-1 m-5">
                                 {icon}
@@ -229,7 +232,7 @@ function DeviceDetailWindow() {
                                     </Button>
                                 ) : (
                                     <div className="flex flex-col gap-2">
-                                        <Button onClick={locateMarker} className={`btn btn-wide w-full { hover:bg-neutral-700 border-1 border-neutral-700 flex justify-between ${buttonClass}`} >
+                                        <Button onClick={locateMarker} className={`btn btn-wide w-full  hover:bg-green-700 border-1 bg-green-600 border-green-400 flex justify-between text-green-50`} >
                                             Locate
                                             <UilSearch />
                                         </Button>

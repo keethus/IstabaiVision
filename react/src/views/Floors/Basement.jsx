@@ -49,7 +49,7 @@ export default function Second() {
         if (devices && rooms) {
             setLoading(false);
         }
-    }, [rooms, placingMarker]);
+    }, [rooms]);
 
 
     return (
