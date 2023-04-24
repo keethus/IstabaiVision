@@ -1,134 +1,106 @@
-import VectorMap, {
-    Layer,
-    Tooltip,
-    Label, Size,
-} from 'devextreme-react/vector-map';
-
-import {roomsData, buildingData, insideBuildingData, doorsData} from "./BasementPolygons";
+import {roomsData, buildingData, insideBuildingData, doorsData} from "./BasementPolygons.js";
+import 'leaflet/dist/leaflet.css';
+import {MapContainer, GeoJSON} from 'react-leaflet';
+import L from 'leaflet';
+import {
+    buildingStyle,
+    getDevicesFromFloor,
+    getRooms,
+    onEachRoom,
+    scaleDown
+} from "../../components/utils.jsx";
 import {useEffect, useState} from "react";
-import {Background, ControlBar} from "devextreme-react/vector-map.js";
+import {useDispatch, useSelector} from "react-redux";
+import NewLocationMarker from "../../components/map/NewLocationMarker.jsx";
 
-const projection = {
-    to: ([l, lt]) => [l / 1500000, lt / 1500000],
-    from: ([x, y]) => [x * 1500000, y * 1500000],
-};
-
-export default function Basement() {
+export default function Second() {
     const [rooms, setRooms] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [deviceMarkers, setDeviceMarkers] = useState(null);
+    const [map, setMap] = useState(null);
+    const placingMarker = useSelector(state => state.placingMarker);
+    const devices = useSelector(state => state.allDevices);
+    const dispatch = useDispatch();
+    const [floor, setFloor] = useState("0");
 
     useEffect(() => {
-        if (loading === false) {
-            setTimeout(() => {
-                getRooms()
-            }, 10000);
-        } else {
-            getRooms()
+        setFloor(0)
+        dispatch({ type: 'SET_FLOOR', payload: floor });
+    })
+
+    useEffect(() => {
+        if(map) {
+            dispatch({ type: 'SET_MAP', payload: map });
         }
-    }, [loading])
+    }, [map])
 
-    const getRooms = () => {
-        setLoading(true)
-        fetch(`https://api.istabai.com/2/rooms.list.json?api_key=${import.meta.env.VITE_ISTABAI_API_KEY}&home_id=1155`)
-            .then(r => r.json())
-            .then(data => {
-                setLoading(false)
-                setRooms(data)
-                console.log('istabai data', data)
-            })
-            .catch(e => {
-                setLoading(false)
-                console.log('istabai error', e)
-            })
-    }
 
-    const customizeTooltip = (arg) => {
-        if (arg.layer.name === 'rooms') {
-            const room = rooms.rooms.find(room => room.id === arg.attribute('id'));
-            let motionDate;
+    useEffect(() => {
+        async function fetchData() {
+            const roomsData = await getRooms();
+            setRooms(roomsData);
 
-            if (room) {
-                if (room.has_motion_sensor) {
-                    motionDate = new Date(room.last_motion * 1000);
-                }
-
-                if (room.has_motion_sensor) {
-                    return {
-                        text: `Temp: ${room.temperature} °C
-                            Co2: ${room.co2}
-                            Humidity: ${room.humidity}%
-                            Motion: ${motionDate.toLocaleString()}`
-                    };
-                } else {
-                    return {
-                        text: `Temp: ${room.temperature} °C
-                        Co2: ${room.co2}
-                        Humidity: ${room.humidity}%`
-                    };
-                }
-            } else {
-                return {
-                    text: `No data available for this room.`
-                };
-            }
+            const devicesData = await getDevicesFromFloor("0");
+            setDeviceMarkers(devicesData)
         }
-        return null;
-    };
+        if (!rooms) {
+            fetchData();
+        }
+        if (devices && rooms) {
+            setLoading(false);
+        }
+    }, [rooms, placingMarker]);
+
 
     return (
+        <div>
+            {!loading ? (
+                <MapContainer center={[0, 0]}
+                              zoom={-50}
+                              crs={L.CRS.Simple}
+                              scrollWheelZoom={true}
+                              className="bg-neutral-500 z-10"
+                              style={{ height: '80vh', backgroundColor: '#2c2c2c'}}
+                              ref={setMap}>
+                    <GeoJSON data={scaleDown(roomsData, 1500)}
+                             style={{color: 'transparent', weight: 1, opacity: 0.2}}
+                             onEachFeature={(feature, layer) => onEachRoom(feature, layer, rooms)} >
+                    </GeoJSON>
+                    {placingMarker && <NewLocationMarker floor={floor} />}
 
-        <div className="p-6 ">
+                    {deviceMarkers && map &&
+                        <GeoJSON data={deviceMarkers} pointToLayer={(feature, latlng) => {
+                            const { url } = feature.properties;
+                            const icon = L.divIcon({
+                                html: url,
+                                className: 'bg-transparent',
+                                iconSize: [32, 32], // adjust as needed
+                                iconAnchor: [16, 0] // adjust as needed
+                            });
+                            return L.marker(latlng, { icon });
+                        }} onEachFeature={(feature, layer) => {
+                            const text = `<b> ${feature.properties.text} </b>`;
+                            layer.bindTooltip(text, {direction: 'top', offset: [0, 0]});
+                            layer.on('click', (e) => {
+                                const matchedDevice = devices.find((d) => d.id.toString() === feature.properties.text);
+                                dispatch({type: 'SET_DEVICE_DETAILS', payload: matchedDevice});
 
-            <VectorMap
-                id="vector-map"
-                projection={projection}
-                touchEnabled={true}
-                maxZoomFactor={20}
-                zoomFactor={4}
-                panningEnabled={true}
-            >
-                <Background color={'#2c2c2c'} borderColor={'#2c2c2c'}/>
-                <Size height={600}/>
-                <ControlBar
-                    enabled={false}
-                />
-                <Layer
+                                console.log('Clicked on GeoJSON feature:', Object.assign(matchedDevice));
+                            });
+                        }}  />
+                    }
 
-                    dataSource={buildingData}
-                    hoverEnabled={false}
-                    name="building"
-                    color="#636363">
-                </Layer>
-                <Layer
-                    dataSource={insideBuildingData}
-                    hoverEnabled={false}
-                    name="building"
-                    color="#636363">
-                </Layer>
-                <Layer
-                    dataSource={doorsData}
-                    name="doors"
-                    borderWidth={2}
-                    color="green">
-                    <Tooltip
-                        enabled={true}
-                        customizeTooltip={customizeTooltip}
-                    ></Tooltip>
-                </Layer>
-                <Layer
-                    dataSource={roomsData}
-                    name="rooms"
-                    borderWidth={2}
-                    color="transparent">
-                    <Label enabled={true} dataField="name" color="red" className="text-gray-200"></Label>
-                </Layer>
-
-                <Tooltip
-                    enabled={true}
-                    customizeTooltip={customizeTooltip}
-                ></Tooltip>
-            </VectorMap>
+                    <GeoJSON data={scaleDown(buildingData, 1500)} style={buildingStyle} />
+                    <GeoJSON data={scaleDown(insideBuildingData, 1500)} style={buildingStyle} />
+                    <GeoJSON data={scaleDown(doorsData, 1500)} style={{color: 'green', weight: 1, opacity: 0.2}} />
+                </MapContainer>
+            ) : (
+                <div className="flex justify-center items-center h-80">
+                    <div className="animate-spin rounded-full h-28 w-28 border-t-4 border-b-4 border-neutral-900"></div>
+                </div>
+            )}
         </div>
-    );
+    )
 }
+
 

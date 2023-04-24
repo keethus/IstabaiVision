@@ -1,6 +1,6 @@
 import {UilExclamationTriangle} from "@iconscout/react-unicons";
 
-function WarningWindow({warnings}) {
+function WarningsWindow({warnings}) {
     return (
         <div className="dropdown dropdown-end">
             <label tabIndex={0} className="btn btn-ghost btn-circle">
@@ -9,7 +9,7 @@ function WarningWindow({warnings}) {
                     className="badge absolute top-1 left-6 bg-orange-500 text-neutral-900">{warnings && warnings.warnings.length}</div>
             </label>
             <div tabIndex={0}
-                 className="dropdown-content card card-compact w-80 p-2 shadow bg-neutral-900 text-primary-content">
+                 className="dropdown-content card card-compact w-80 p-2 mt-4 shadow bg-neutral-900 text-primary-content">
                 <div className="card-body">
                     <h3 className="card-title text-orange-400">Warnings!</h3>
 
@@ -25,4 +25,4 @@ function WarningWindow({warnings}) {
         </div>
     )
 }
-export default WarningWindow;
+export default WarningsWindow;

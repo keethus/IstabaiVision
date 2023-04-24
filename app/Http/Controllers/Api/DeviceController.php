@@ -11,8 +11,11 @@ class DeviceController extends Controller
     public function index(Request $request)
     {
         $floor = $request->floor;
-        return response()->json(Device::where('floor', $floor)->get(), 201);
+        if($floor == null) {
+            return response()->json(Device::all(), 201);
+        }
 
+        return response()->json(Device::where('floor', $floor)->get(), 201);
     }
 
     public function show(Device $device)
@@ -41,10 +44,28 @@ class DeviceController extends Controller
         return response()->json($device, 200);
     }
 
-    public function delete(Device $device)
+    public function delete(Request $request)
     {
-        $device->delete();
+        if(auth()) {
+            if(!$request->id) {
+                return response()->json('No id provided', 400);
+            }
 
-        return response()->json(null, 204);
+            Device::where('device_id', $request->id)->delete();
+            return response()->json(null, 204);
+        }
+
+    }
+
+    public function deleteFromFloor(Request $request)
+    {
+        $floor = $request->floor;
+        if(!$floor) {
+            return response()->json('No floor provided', 400);
+        }
+
+        Device::where('floor', $floor)->delete();
+
+        return response()->json('Devices successfully removed', 204);
     }
 }

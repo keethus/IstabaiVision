@@ -4,39 +4,41 @@ import {
     UilBatteryBolt,
     UilBatteryEmpty, UilExclamationCircle,
     UilFavorite,
-    UilKeyholeCircle, UilLightbulb, UilMapMarkerPlus,
+    UilKeyholeCircle, UilLightbulb, UilMapMarkerEdit, UilMapMarkerPlus, UilSearch,
     UilSignal,
-    UilSubway, UilSync, UilToggleOn
+    UilSubway, UilSync, UilTimesCircle, UilToggleOn
 } from "@iconscout/react-unicons";
 import DeviceDetailExtraInfo from "./DeviceDetailExtraInfo.jsx";
 import moment from "moment/moment.js";
 import {Button} from "react-daisyui";
 import {getSignalStrengthClass} from "../utils.jsx";
+import {useMapEvent, useMapEvents} from "react-leaflet";
 
 function DeviceDetailWindow() {
     const [buttonClass, setButtonClass] = useState('bg-neutral-800')
     const [buttonActive, setButtonActive] = useState(false)
     const [buttonText, setButtonText] = useState('Place on map')
     const [currentDeviceId, setCurrentDeviceId] = useState(null);
+    const [mapRef, setMapRef] = useState(null)
 
-    const device = useSelector(state => state.deviceDetails)
+    const device = useSelector(state => state.deviceDetails);
     const markerPlaced = useSelector(state => state.markerPlaced);
     const markerLocation = useSelector(state => state.markerLocation)
     const floor = useSelector(state => state.floor)
 
+    const map = useSelector(state => state.map)
+
     const dispatch = useDispatch();
+
 
     useEffect(() => {
         setButtonActive(false)
+        if(map) {
+            setMapRef(map)
+        }
+        console.log('device changed: ', device)
     }, [device])
 
-    useEffect(() => {
-        if (device && device.id && device.id !== currentDeviceId) {
-            console.log('Device changed')
-            setCurrentDeviceId(device.id);
-            // A new device has been clicked, do something here
-        }
-    }, [device, currentDeviceId]);
 
     useEffect(() => {
         if(buttonActive === true) {
@@ -65,7 +67,8 @@ function DeviceDetailWindow() {
             device_id: device.id,
             latitude: markerLocation.features[0].geometry.coordinates[1],
             longitude: markerLocation.features[0].geometry.coordinates[0],
-            floor: floor
+            floor: floor,
+            icon: device.type
         }
 
         fetch(`${import.meta.env.VITE_API_BASE_URL}/api/device/store`, {
@@ -80,6 +83,7 @@ function DeviceDetailWindow() {
                 console.log('Success:', data);
                 dispatch({ type: 'SET_MARKER_PLACED', payload: false });
                 setButtonActive(false)
+                window.location.reload();
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -156,6 +160,25 @@ function DeviceDetailWindow() {
             setButtonActive(!buttonActive)
         }
 
+        const locateMarker = () => {
+            mapRef.flyTo([device.longitude, device.latitude], 2)
+            return null
+        }
+
+        const removeMarker = async () => {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/device/${device.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                });
+                window.location.reload();
+            } catch (e) {
+                console.log('error', e)
+            }
+        }
+
         return (
             <div className="absolute bottom-0 right-0 w-96 z-50">
                 {buttonActive && !markerPlaced &&
@@ -175,7 +198,6 @@ function DeviceDetailWindow() {
                                 Save
                             </Button>
                         </div>
-
                     </div>
                 }
                 <div className="modal-box bg-neutral-900 shadow-lg h-auto">
@@ -199,10 +221,24 @@ function DeviceDetailWindow() {
                                 {icon}
                             </div>
                             <div className="pt-4">
-                                <Button onClick={placeMarker} className={`btn btn-wide w-full { hover:bg-neutral-700 border-1 border-neutral-700 flex justify-between ${buttonClass}`} >
-                                    {buttonText}
-                                    <UilMapMarkerPlus />
-                                </Button>
+
+                                {!device.is_placed ? (
+                                    <Button onClick={placeMarker} className={`btn btn-wide w-full { hover:bg-neutral-700 border-1 border-neutral-700 flex justify-between ${buttonClass}`} >
+                                        {buttonText}
+                                        <UilMapMarkerPlus />
+                                    </Button>
+                                ) : (
+                                    <div className="flex flex-col gap-2">
+                                        <Button onClick={locateMarker} className={`btn btn-wide w-full { hover:bg-neutral-700 border-1 border-neutral-700 flex justify-between ${buttonClass}`} >
+                                            Locate
+                                            <UilSearch />
+                                        </Button>
+                                        <Button onClick={removeMarker} className={`btn btn-wide w-full { hover:bg-neutral-700 border-1 border-neutral-700 flex justify-between ${buttonClass}`} >
+                                            Remove from map
+                                            <UilTimesCircle />
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

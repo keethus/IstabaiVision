@@ -1,27 +1,22 @@
 import {Link, Navigate, Outlet} from "react-router-dom";
 import {useStateContext} from "../contexts/ContextProvider.jsx";
-import {useEffect, useState} from "react";
+import {createContext, useEffect, useState} from "react";
 import axiosClient from "../axios-client.js";
-import {
-    UilExclamationTriangle,
-    UilSignOutAlt,
-} from '@iconscout/react-unicons'
 import 'devextreme/dist/css/dx.dark.css';
 import moment from "moment";
 import {createStore} from "redux";
 import {Provider, useDispatch, useSelector} from "react-redux";
 import DeviceDetailWindow from "./devices/DeviceDetailWindow.jsx";
-import FilterableDeviceList from "./devices/FilterableDeviceList.jsx";
 import SideBar from "./navigation/SideBar.jsx";
-import WarningWindow from "./navigation/WarningWindow.jsx";
 import Navigation from "./navigation/Navigation.jsx";
-
+import {mergeDevices} from "./utils.jsx";
 
 export default function DefaultLayout() {
     const {user, token, setUser, setToken} = useStateContext()
     const [warnings, setWarnings] = useState(null);
     const [loading, setLoading] = useState(true);
     const [devices, setDevices] = useState(null);
+    const [databaseDevices, setDatabaseDevices] = useState(null);
 
     const initialState = {
         deviceDetails: null,
@@ -30,13 +25,10 @@ export default function DefaultLayout() {
         markerLocation: null,
         floor: 1,
         floorDevices: null,
-        allDevices: devices
+        allDevices: devices,
+        map: null,
     }
 
-    useEffect(() => {
-
-
-    })
 
     function deviceReducer(state = initialState, action) {
         switch (action.type) {
@@ -52,6 +44,10 @@ export default function DefaultLayout() {
                 return { ...state, floor: action.payload };
             case 'SET_FLOOR_DEVICES':
                 return { ...state, floorDevices: action.payload };
+            case 'SET_ALL_DEVICES':
+                return { ...state, allDevices: action.payload };
+            case 'SET_MAP':
+                return { state, map: action.payload };
             default:
                 return state;
         }
@@ -59,15 +55,20 @@ export default function DefaultLayout() {
 
     const store = createStore(deviceReducer)
 
+
     moment.locale('LV')
     if (!token) {
         return <Navigate to='/login'/>
     }
 
     useEffect(() => {
-        getDevices()
+        getDevicesFromDB()
         getWarnings()
     },[] )
+
+    useEffect(() => {
+        getDevices()
+    }, [databaseDevices])
 
 
     const getWarnings = () => {
@@ -81,11 +82,24 @@ export default function DefaultLayout() {
                 console.log('istabai error', e)
             })
     }
+
+    const getDevicesFromDB = () => {
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/devices`)
+            .then(r => r.json())
+            .then(data => {
+                setDatabaseDevices(data)
+            })
+            .catch(e => {
+                console.log('istabai error', e)
+            })
+    }
+
     const getDevices = () => {
         fetch(`https://api.istabai.com/2/devices.list.json?api_key=${import.meta.env.VITE_ISTABAI_API_KEY}&home_id=1155`)
             .then(r => r.json())
             .then(data => {
-                setDevices(data)
+                const mergedDevices = mergeDevices(databaseDevices, data);
+                setDevices(mergedDevices)
             })
             .catch(e => {
                 console.log('istabai error', e)
@@ -110,8 +124,6 @@ export default function DefaultLayout() {
             })
     }, [])
 
-    // Q:
-
 
     return (
         <div className="dark">
@@ -120,7 +132,7 @@ export default function DefaultLayout() {
                     <Provider store={store}>
                         <SideBar devices={devices}/>
                         <div className="p-4 sm:ml-64">
-                            <Navigation onLogout={onLogout}/>
+                            <Navigation onLogout={onLogout} warnings={warnings}/>
                             <main>
                                 <DeviceDetailWindow />
                                 <Outlet/>

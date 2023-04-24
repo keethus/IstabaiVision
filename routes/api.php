@@ -26,6 +26,10 @@ Route::post('/signup', [AuthController::class, 'signup']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/device/store', [DeviceController::class, 'store']);
+Route::get('/devices', [DeviceController::class, 'index']);
 Route::get('/devices/{floor}', [DeviceController::class, 'index']);
+Route::delete('/devices/{floor}', [DeviceController::class, 'deleteFromFloor']);
+
 Route::get('/device/{device}', [DeviceController::class, 'show']);
+Route::delete('/device/{id}', [DeviceController::class, 'delete']);
 

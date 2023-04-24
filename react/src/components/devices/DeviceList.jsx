@@ -1,7 +1,7 @@
 import {getSignalStrengthClass} from "../utils.jsx";
 import {
     UilBatteryBolt,
-    UilBatteryEmpty,
+    UilBatteryEmpty, UilCircuit,
     UilDatabase,
     UilEye,
     UilGrids, UilPlug,
@@ -35,8 +35,8 @@ function DeviceList({filteredDevices, handleDeviceChange}) {
 
     return (
         <ul className="space-y-2 mt-4 menu p-2 rounded-box">
-            {filteredDevices && filteredDevices.devices?.map((device, index) => {
-                let icon, battery, infoIcon, fillClass
+            {filteredDevices && filteredDevices.map((device, index) => {
+                let icon, infoIcon, fillClass
 
                 fillClass = getSignalStrengthClass(device.signal_strength);
 
@@ -60,7 +60,7 @@ function DeviceList({filteredDevices, handleDeviceChange}) {
                     icon = <UilGrids/>
                     infoIcon = <UilSignal className={fillClass} size="20"/>;
                 } else if (device.type === "SWITCH_BOILER") {
-                    icon = <UilTear/>
+                    icon = <UilCircuit/>
                     infoIcon = <UilSignal className={fillClass} size="20"/>;
                 } else if (device.type === "RELAY_S2P4") {
                     icon = <UilToggleOn/>

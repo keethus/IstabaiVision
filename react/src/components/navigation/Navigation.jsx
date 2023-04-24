@@ -1,12 +1,12 @@
 import {Link} from "react-router-dom";
 import {UilSignOutAlt} from "@iconscout/react-unicons";
-import WarningWindow from "./WarningWindow.jsx";
+import WarningsWindow from "./WarningsWindow.jsx";
 import axiosClient from "../../axios-client.js";
 import {useStateContext} from "../../contexts/ContextProvider.jsx";
 import {useEffect} from "react";
+import SettingsWindow from "./SettingsWindow.jsx";
 
-function Navigation({onLogout}) {
-
+function Navigation({onLogout, warnings}) {
 
     return (
         <div className="navbar bg-base-100 max-w-8xl mx-auto rounded-box bg-neutral-900 shadow-lg">
@@ -21,8 +21,8 @@ function Navigation({onLogout}) {
                 </div>
             </div>
             <div className="navbar-end">
-                <WarningWindow/>
-
+                <SettingsWindow/>
+                <WarningsWindow warnings={warnings}/>
                 <button onClick={onLogout} className="btn btn-ghost btn-circle">
                     <UilSignOutAlt className="fill-red-500"/>
                 </button>

@@ -13,10 +13,11 @@ function FilterableDeviceList({devices}) {
         if (filter === 'NO_FILTER') {
             setFilteredDevices(devices);
         } else {
-            setFilteredDevices({
-                devices: devices.devices.filter((device) => device.type === filter)
-            });
+            setFilteredDevices(devices.filter((device) => device.type === filter));
             setDevicesLoading(false)
+        }
+        if(devices) {
+            dispatch({ type: 'SET_ALL_DEVICES', payload: devices })
         }
     }, [filter, devices]);
 
