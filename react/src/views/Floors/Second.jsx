@@ -42,15 +42,14 @@ export default function Second() {
 
             const devicesData = await getDevicesFromFloor(floor);
             setDeviceMarkers(devicesData)
-        }
 
-        if (!rooms) {
-            fetchData();
         }
-        if (devices && rooms) {
+        if (!rooms ) {
+            fetchData();
+        } else {
             setLoading(false);
         }
-    }, [rooms, placingMarker]);
+    }, [rooms, devices]);
 
 
     return (

@@ -45,11 +45,11 @@ export default function Second() {
         }
         if (!rooms) {
             fetchData();
-        }
-        if (devices && rooms) {
+        } else {
             setLoading(false);
         }
-    }, [rooms]);
+        console.log('loaded', devices)
+    }, [rooms, devices]);
 
 
     return (

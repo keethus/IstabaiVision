@@ -29,6 +29,11 @@ export default function DefaultLayout() {
         map: null,
     }
 
+    useEffect(() => {
+        console.log('loaded', devices)
+        console.log
+    })
+
 
     function deviceReducer(state = initialState, action) {
         switch (action.type) {

@@ -46,11 +46,11 @@ export default function First() {
 
         if (!rooms) {
             fetchData();
-        }
-        if (devices && rooms) {
+        } else {
             setLoading(false);
         }
-    }, [rooms, placingMarker]);
+
+    }, [rooms, devices]);
 
 
 
