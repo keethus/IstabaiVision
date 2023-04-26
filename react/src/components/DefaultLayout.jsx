@@ -1,17 +1,18 @@
 import {Link, Navigate, Outlet} from "react-router-dom";
 import {useStateContext} from "../contexts/ContextProvider.jsx";
-import {createContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import axiosClient from "../axios-client.js";
 import 'devextreme/dist/css/dx.dark.css';
 import moment from "moment";
 import {createStore} from "redux";
-import {Provider, useDispatch, useSelector} from "react-redux";
+import {Provider} from "react-redux";
 import DeviceDetailWindow from "./devices/DeviceDetailWindow.jsx";
 import SideBar from "./navigation/SideBar.jsx";
 import Navigation from "./navigation/Navigation.jsx";
 import {mergeDevices} from "./utils.jsx";
 
 export default function DefaultLayout() {
+    moment.locale('LV')
     const {user, token, setUser, setToken} = useStateContext()
     const [warnings, setWarnings] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -28,11 +29,6 @@ export default function DefaultLayout() {
         allDevices: devices,
         map: null,
     }
-
-    useEffect(() => {
-        console.log('loaded', devices)
-        console.log
-    })
 
 
     function deviceReducer(state = initialState, action) {
@@ -60,8 +56,6 @@ export default function DefaultLayout() {
 
     const store = createStore(deviceReducer)
 
-
-    moment.locale('LV')
     if (!token) {
         return <Navigate to='/login'/>
     }
@@ -105,6 +99,7 @@ export default function DefaultLayout() {
             .then(data => {
                 const mergedDevices = mergeDevices(databaseDevices, data);
                 setDevices(mergedDevices)
+
             })
             .catch(e => {
                 console.log('istabai error', e)
@@ -128,7 +123,6 @@ export default function DefaultLayout() {
                 setUser(data)
             })
     }, [])
-
 
     return (
         <div className="dark">
