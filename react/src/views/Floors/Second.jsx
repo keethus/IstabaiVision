@@ -20,12 +20,12 @@ export default function Second() {
     const [deviceMarkers, setDeviceMarkers] = useState(null);
     const [map, setMap] = useState(null);
     const placingMarker = useSelector(state => state.placingMarker);
-    const devices = useSelector(state => state.allDevices);
+    const devices = JSON.parse(localStorage.getItem('devices'))
     const dispatch = useDispatch();
-    const [floor, setFloor] = useState(2);
+    const floor = 2;
 
     useEffect(() => {
-        dispatch({ type: 'SET_FLOOR', payload: floor });
+        localStorage.setItem('floor', floor);
     })
 
     useEffect(() => {
@@ -34,15 +34,16 @@ export default function Second() {
         }
     }, [map])
 
-
     useEffect(() => {
+        if(!devices) {
+            setLoading(true);
+        }
         async function fetchData() {
             const roomsData = await getRooms();
             setRooms(roomsData);
 
             const devicesData = await getDevicesFromFloor(floor);
             setDeviceMarkers(devicesData)
-
         }
         if (!rooms ) {
             fetchData();
@@ -51,12 +52,9 @@ export default function Second() {
         }
     }, [rooms, devices]);
 
-
     return (
         <div>
-
             {!loading ? (
-
                 <MapContainer center={[0, 0]}
                               zoom={-50}
                               crs={L.CRS.Simple}
@@ -86,8 +84,6 @@ export default function Second() {
                             layer.on('click', (e) => {
                                 const matchedDevice = devices.find((d) => d.id.toString() === feature.properties.text);
                                 dispatch({type: 'SET_DEVICE_DETAILS', payload: matchedDevice});
-
-                                console.log('Clicked on GeoJSON feature:', Object.assign(matchedDevice));
                             });
                         }}  />
                     }

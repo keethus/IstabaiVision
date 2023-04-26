@@ -19,13 +19,12 @@ export default function Second() {
     const [deviceMarkers, setDeviceMarkers] = useState(null);
     const [map, setMap] = useState(null);
     const placingMarker = useSelector(state => state.placingMarker);
-    const devices = useSelector(state => state.allDevices);
+    const devices = JSON.parse(localStorage.getItem('devices'))
     const dispatch = useDispatch();
-    const [floor, setFloor] = useState(0);
+    const floor = 0;
 
     useEffect(() => {
-        setFloor("0")
-        dispatch({ type: 'SET_FLOOR', payload: floor });
+        localStorage.setItem('floor', floor);
     })
 
     useEffect(() => {
@@ -48,7 +47,6 @@ export default function Second() {
         } else {
             setLoading(false);
         }
-        console.log("floor", floor)
     }, [rooms, devices]);
 
 
@@ -83,11 +81,7 @@ export default function Second() {
                             layer.bindTooltip(text, {direction: 'top', offset: [0, 0]});
                             layer.on('click', (e) => {
                                 const matchedDevice = devices.find((d) => d.id.toString() === feature.properties.text);
-                                dispatch({type: 'SET_DEVICE_DETAILS', payload: matchedDevice});
-                                const icon = layer.getIcon();
-                                icon.options.className = 'bg-green-500';
-                                console.log(icon)
-                                console.log('Clicked on GeoJSON feature:', Object.assign(matchedDevice));
+                                dispatch({ type: 'SET_DEVICE_DETAILS', payload: matchedDevice });
                             });
                         }}  />
                     }

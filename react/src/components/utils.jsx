@@ -45,7 +45,7 @@ export const buildingStyle = {
     color: '#636363',
     weight: 1,
     fillOpacity: 1,
-};
+}; 
 
 export const getRooms = async () => {
     try {

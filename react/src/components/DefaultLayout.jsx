@@ -10,6 +10,7 @@ import DeviceDetailWindow from "./devices/DeviceDetailWindow.jsx";
 import SideBar from "./navigation/SideBar.jsx";
 import Navigation from "./navigation/Navigation.jsx";
 import {mergeDevices} from "./utils.jsx";
+import {composeWithDevTools} from "redux-devtools-extension";
 
 export default function DefaultLayout() {
     moment.locale('LV')
@@ -34,7 +35,7 @@ export default function DefaultLayout() {
     function deviceReducer(state = initialState, action) {
         switch (action.type) {
             case 'SET_DEVICE_DETAILS':
-                return { state, deviceDetails: action.payload };
+                return { deviceDetails: action.payload };
             case 'SET_PLACING_MARKER':
                 return { ...state, placingMarker: action.payload };
             case 'SET_MARKER_PLACED':
@@ -54,7 +55,7 @@ export default function DefaultLayout() {
         }
     }
 
-    const store = createStore(deviceReducer)
+    const store = createStore(deviceReducer, composeWithDevTools());
 
     if (!token) {
         return <Navigate to='/login'/>
@@ -99,7 +100,7 @@ export default function DefaultLayout() {
             .then(data => {
                 const mergedDevices = mergeDevices(databaseDevices, data);
                 setDevices(mergedDevices)
-
+                localStorage.setItem('devices', JSON.stringify(mergedDevices))
             })
             .catch(e => {
                 console.log('istabai error', e)

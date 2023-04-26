@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useLayoutEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {
     UilBatteryBolt,
@@ -18,26 +18,23 @@ function DeviceDetailWindow() {
     const [buttonClass, setButtonClass] = useState('bg-neutral-800')
     const [buttonActive, setButtonActive] = useState(false)
     const [buttonText, setButtonText] = useState('Place on map')
-    const [currentDeviceId, setCurrentDeviceId] = useState(null);
     const [mapRef, setMapRef] = useState(null)
 
     const device = useSelector(state => state.deviceDetails);
     const markerPlaced = useSelector(state => state.markerPlaced);
     const markerLocation = useSelector(state => state.markerLocation)
     const floor = useSelector(state => state.floor)
-
     const map = useSelector(state => state.map)
 
     const dispatch = useDispatch();
 
-
-    useEffect(() => {
+    useLayoutEffect(() => {
         setButtonActive(false)
         if(map) {
             setMapRef(map)
         }
         console.log('device changed: ', device)
-    }, [device])
+    }, [device, dispatch])
 
 
     useEffect(() => {

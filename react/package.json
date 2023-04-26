@@ -30,7 +30,9 @@
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.8.1",
     "react-transition-group": "^4.4.5",
-    "redux": "^4.2.1"
+    "redux": "^4.2.1",
+    "redux-devtools-extension": "^2.13.9",
+    "save-dev": "^0.0.1-security"
   },
   "devDependencies": {
     "@types/react": "^18.0.27",
