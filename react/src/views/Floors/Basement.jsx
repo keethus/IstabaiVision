@@ -21,10 +21,10 @@ export default function Second() {
     const placingMarker = useSelector(state => state.placingMarker);
     const devices = useSelector(state => state.allDevices);
     const dispatch = useDispatch();
-    const [floor, setFloor] = useState("0");
+    const [floor, setFloor] = useState(0);
 
     useEffect(() => {
-        setFloor(0)
+        setFloor("0")
         dispatch({ type: 'SET_FLOOR', payload: floor });
     })
 
@@ -48,7 +48,7 @@ export default function Second() {
         } else {
             setLoading(false);
         }
-        console.log('loaded', devices)
+        console.log("floor", floor)
     }, [rooms, devices]);
 
 
@@ -70,10 +70,15 @@ export default function Second() {
 
                     {deviceMarkers && map &&
                         <GeoJSON data={deviceMarkers} pointToLayer={(feature, latlng) => {
+                            const matchedDevice = devices.find((d) => d.id.toString() === feature.properties.text);
+                            let iconClasses = 'bg-transparent'
                             const { url } = feature.properties;
+                            if(matchedDevice.error) {
+                                iconClasses = 'animate-pulse '
+                            }
                             const icon = L.divIcon({
                                 html: url,
-                                className: 'bg-transparent',
+                                className: iconClasses,
                                 iconSize: [32, 32], // adjust as needed
                                 iconAnchor: [16, 0] // adjust as needed
                             });
@@ -84,7 +89,9 @@ export default function Second() {
                             layer.on('click', (e) => {
                                 const matchedDevice = devices.find((d) => d.id.toString() === feature.properties.text);
                                 dispatch({type: 'SET_DEVICE_DETAILS', payload: matchedDevice});
-
+                                const icon = layer.getIcon();
+                                icon.options.className = 'bg-green-500';
+                                console.log(icon)
                                 console.log('Clicked on GeoJSON feature:', Object.assign(matchedDevice));
                             });
                         }}  />

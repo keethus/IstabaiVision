@@ -8,6 +8,7 @@ import SettingsWindow from "./SettingsWindow.jsx";
 
 function Navigation({onLogout, warnings}) {
 
+    const floor = useStateContext().floor
     return (
         <div className="navbar bg-base-100 max-w-8xl mx-auto rounded-box bg-neutral-900 shadow-lg">
             <div className="navbar-start flex align-center pl-2">
@@ -21,6 +22,13 @@ function Navigation({onLogout, warnings}) {
                 </div>
             </div>
             <div className="navbar-end">
+                <div className="flex mr-8 gap-4">
+                    <input type="text" placeholder="Device id, type..." className="input input-bordered w-full max-w-xs bg-neutral-800 border-neutral-700 " />
+                    <button className="btn btn-ghost bg-neutral-800">
+                        search
+                    </button>
+                </div>
+
                 <SettingsWindow/>
                 <WarningsWindow warnings={warnings}/>
                 <button onClick={onLogout} className="btn btn-ghost btn-circle">

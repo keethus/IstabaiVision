@@ -1,10 +1,10 @@
-import {getSignalStrengthClass} from "../utils.jsx";
+import {getSignalStrengthClass, renderDeviceIcon} from "../utils.jsx";
 import {
     UilBatteryBolt,
-    UilBatteryEmpty, UilCircuit,
-    UilDatabase,
+    UilBatteryEmpty, UilCheckCircle, UilCircuit,
+    UilDatabase, UilExclamationOctagon, UilExclamationTriangle,
     UilEye,
-    UilGrids, UilPlug,
+    UilGrids, UilInfoCircle, UilPlug,
     UilSignal, UilTear,
     UilTemperature, UilToggleOn
 } from "@iconscout/react-unicons";
@@ -36,45 +36,20 @@ function DeviceList({filteredDevices, handleDeviceChange}) {
     return (
         <ul className="space-y-2 mt-4 menu p-2 rounded-box">
             {filteredDevices && filteredDevices.map((device, index) => {
-                let icon, infoIcon, fillClass
+                let  infoIcon, fillClass;
 
-                fillClass = getSignalStrengthClass(device.signal_strength);
-
-                if (device.type === 'BASE_STATION') {
-                    icon = <UilDatabase/>
-                } else if (device.type === 'MOTION_SENSOR') {
-                    icon = <UilEye/>
-                    if (device.battery === 0) {
-                        infoIcon = <UilBatteryEmpty className="fill-orange-400" size="20"/>
-                    } else {
-                        infoIcon = <UilBatteryBolt size="20"/>
-                    }
-                } else if (device.type === 'TEMPERATURE_SENSOR') {
-                    icon = <UilTemperature/>
-                    if (device.battery === 0) {
-                        infoIcon = <UilBatteryEmpty className="fill-orange-400" size="20"/>
-                    } else {
-                        infoIcon = <UilBatteryBolt size="20"/>
-                    }
-                } else if (device.type === "SIEMENS_SSA955") {
-                    icon = <UilGrids/>
-                    infoIcon = <UilSignal className={fillClass} size="20"/>;
-                } else if (device.type === "SWITCH_BOILER") {
-                    icon = <UilCircuit/>
-                    infoIcon = <UilSignal className={fillClass} size="20"/>;
-                } else if (device.type === "RELAY_S2P4") {
-                    icon = <UilToggleOn/>
-                    infoIcon = <UilSignal className={fillClass} size="20"/>;
-                } else if (device.type === "WALL_PLUG") {
-                    icon = <UilPlug/>
-                    infoIcon = <UilSignal className={fillClass} size="20"/>;
+                if(device.is_placed) {
+                    infoIcon = <UilCheckCircle size={16} className="fill-green-500"/>
+                } else if(device.error) {
+                    infoIcon = <UilInfoCircle size={16} className="fill-red-500"/>
                 }
+
                 return (
                     <li key={device.id}>
                         <a href="#"
                            onClick={(event) => handleDeviceChange(device, event)}
                            className="text-sm">
-                            {icon}
+                            {renderDeviceIcon(device)}
                             <p>
                                 <span className="font-bold">{device.id}</span> <br/>
                                 <span className="text-[10px]">{device.type}

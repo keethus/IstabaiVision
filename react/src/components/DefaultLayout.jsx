@@ -34,7 +34,7 @@ export default function DefaultLayout() {
     function deviceReducer(state = initialState, action) {
         switch (action.type) {
             case 'SET_DEVICE_DETAILS':
-                return { ...state, deviceDetails: action.payload };
+                return { state, deviceDetails: action.payload };
             case 'SET_PLACING_MARKER':
                 return { ...state, placingMarker: action.payload };
             case 'SET_MARKER_PLACED':

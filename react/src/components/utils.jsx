@@ -1,3 +1,13 @@
+import {
+    UilCircuit,
+    UilDatabase,
+    UilEye,
+    UilGrids,
+    UilPlug,
+    UilTemperature,
+    UilToggleOn
+} from "@iconscout/react-unicons";
+
 export const signalStrengthClasses = [
     { range: [0.9, 1], class: "fill-green-500" },
     { range: [0.8, 0.9], class: "fill-green-400" },
@@ -145,3 +155,24 @@ export const getDevicesFromFloor = async (floor) => {
         console.error(error);
     }
 };
+
+export const renderDeviceIcon = (device) => {
+    let icon;
+    if (device.type === 'BASE_STATION') {
+        icon = <UilDatabase/>
+    } else if (device.type === 'MOTION_SENSOR') {
+        icon = <UilEye/>
+    } else if (device.type === 'TEMPERATURE_SENSOR') {
+        icon = <UilTemperature/>
+    } else if (device.type === "SIEMENS_SSA955") {
+        icon = <UilGrids/>
+    } else if (device.type === "SWITCH_BOILER") {
+        icon = <UilCircuit/>
+    } else if (device.type === "RELAY_S2P4") {
+        icon = <UilToggleOn/>
+    } else if (device.type === "WALL_PLUG") {
+        icon = <UilPlug/>
+    }
+
+    return icon;
+}

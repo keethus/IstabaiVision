@@ -73,10 +73,15 @@ export default function First() {
 
                     {deviceMarkers && map &&
                         <GeoJSON data={deviceMarkers} pointToLayer={(feature, latlng) => {
+                            const matchedDevice = devices.find((d) => d.id.toString() === feature.properties.text);
+                            let iconClasses = 'bg-transparent'
                             const { url } = feature.properties;
+                            if(matchedDevice.error) {
+                                iconClasses = 'animate-pulse '
+                            }
                             const icon = L.divIcon({
                                 html: url,
-                                className: 'bg-transparent',
+                                className: iconClasses,
                                 iconSize: [32, 32], // adjust as needed
                                 iconAnchor: [16, 0] // adjust as needed
                             });
@@ -87,7 +92,6 @@ export default function First() {
                             layer.on('click', (e) => {
                                 const matchedDevice = devices.find((d) => d.id.toString() === feature.properties.text);
                                 dispatch({type: 'SET_DEVICE_DETAILS', payload: matchedDevice});
-
                                 console.log('Clicked on GeoJSON feature:', Object.assign(matchedDevice));
                             });
                         }}  />

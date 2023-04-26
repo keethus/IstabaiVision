@@ -104,7 +104,6 @@ function DeviceDetailWindow() {
 
     if(device) {
         let fillClass, icon, info, error, extraInfo, extraIcon, battery
-
         fillClass = getSignalStrengthClass(device.signal_strength);
 
         if(device.signal_strength) {

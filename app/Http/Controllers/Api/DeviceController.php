@@ -60,7 +60,7 @@ class DeviceController extends Controller
     public function deleteFromFloor(Request $request)
     {
         $floor = $request->floor;
-        if(!$floor) {
+        if(is_null($floor)) {
             return response()->json('No floor provided', 400);
         }
 
