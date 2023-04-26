@@ -13,7 +13,6 @@ import {
 import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import NewLocationMarker from "../../components/map/NewLocationMarker.jsx";
-import DeviceDetailWindow from "../../components/devices/DeviceDetailWindow.jsx";
 
 export default function Second() {
     const [rooms, setRooms] = useState(null);
@@ -54,8 +53,8 @@ export default function Second() {
 
 
     return (
-        <>
-            <DeviceDetailWindow />
+        <div>
+
             {!loading ? (
 
                 <MapContainer center={[0, 0]}
@@ -73,15 +72,10 @@ export default function Second() {
 
                     {deviceMarkers && map &&
                         <GeoJSON data={deviceMarkers} pointToLayer={(feature, latlng) => {
-                            const matchedDevice = devices.find((d) => d.id.toString() === feature.properties.text);
-                            let iconClasses = 'bg-transparent'
                             const { url } = feature.properties;
-                            if(matchedDevice.error) {
-                                iconClasses = 'animate-pulse '
-                            }
                             const icon = L.divIcon({
                                 html: url,
-                                className: iconClasses,
+                                className: 'bg-transparent',
                                 iconSize: [32, 32], // adjust as needed
                                 iconAnchor: [16, 0] // adjust as needed
                             });
@@ -91,7 +85,7 @@ export default function Second() {
                             layer.bindTooltip(text, {direction: 'top', offset: [0, 0]});
                             layer.on('click', (e) => {
                                 const matchedDevice = devices.find((d) => d.id.toString() === feature.properties.text);
-                                dispatch({type: 'SET_DEVICE_DETAILS', payload: Object.assign(matchedDevice)});
+                                dispatch({type: 'SET_DEVICE_DETAILS', payload: matchedDevice});
 
                                 console.log('Clicked on GeoJSON feature:', Object.assign(matchedDevice));
                             });
@@ -108,7 +102,7 @@ export default function Second() {
                 </div>
                 )
             }
-        </>
+        </div>
     );
 }
 

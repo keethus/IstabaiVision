@@ -73,15 +73,10 @@ export default function First() {
 
                     {deviceMarkers && map &&
                         <GeoJSON data={deviceMarkers} pointToLayer={(feature, latlng) => {
-                            const matchedDevice = devices.find((d) => d.id.toString() === feature.properties.text);
-                            let iconClasses = 'bg-transparent'
                             const { url } = feature.properties;
-                            if(matchedDevice.error) {
-                                iconClasses = 'animate-pulse '
-                            }
                             const icon = L.divIcon({
                                 html: url,
-                                className: iconClasses,
+                                className: 'bg-transparent',
                                 iconSize: [32, 32], // adjust as needed
                                 iconAnchor: [16, 0] // adjust as needed
                             });
