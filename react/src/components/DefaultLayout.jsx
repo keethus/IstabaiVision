@@ -9,8 +9,9 @@ import {Provider} from "react-redux";
 import DeviceDetailWindow from "./devices/DeviceDetailWindow.jsx";
 import SideBar from "./navigation/SideBar.jsx";
 import Navigation from "./navigation/Navigation.jsx";
-import {mergeDevices} from "./utils.jsx";
+import {getDevicesFromFloor, getRooms, mergeDevices} from "./utils.jsx";
 import {composeWithDevTools} from "redux-devtools-extension";
+import {RoomInfoWindow} from "./rooms/RoomInfoWindow.jsx";
 
 export default function DefaultLayout() {
     moment.locale('LV')
@@ -29,6 +30,7 @@ export default function DefaultLayout() {
         floorDevices: null,
         allDevices: devices,
         map: null,
+        selectedRoom: null,
     }
 
 
@@ -50,6 +52,10 @@ export default function DefaultLayout() {
                 return { ...state, allDevices: action.payload };
             case 'SET_MAP':
                 return { state, map: action.payload };
+            case 'SET_SELECTED_ROOM':
+                return { ...state, selectedRoom: action.payload };
+            case 'SET_SELECTED_ROOM':
+                return { ...state, selectedRoom: action.payload };
             default:
                 return state;
         }
@@ -60,6 +66,17 @@ export default function DefaultLayout() {
     if (!token) {
         return <Navigate to='/login'/>
     }
+
+
+    useEffect(() => {
+        async function fetchData() {
+            const roomsData = await getRooms();
+            localStorage.setItem('rooms', JSON.stringify(roomsData))
+        }
+        if (!localStorage.getItem('rooms')) {
+            fetchData();
+        }
+    }, []);
 
     useEffect(() => {
         getDevicesFromDB()
@@ -131,9 +148,10 @@ export default function DefaultLayout() {
                 <div className="w-48 h-full flex-1">
                     <Provider store={store}>
                         <SideBar devices={devices}/>
-                        <div className="p-4 sm:ml-64">
+                        <div className="p-4 sm:ml-64 ">
                             <Navigation onLogout={onLogout} warnings={warnings}/>
                             <main>
+                                <RoomInfoWindow />
                                 <DeviceDetailWindow />
                                 <Outlet/>
                             </main>

@@ -46,3 +46,96 @@
 #map-marker {
   filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
 }
+
+.leaflet-bar a {
+  background-color: rgb(23 23 23) !important;
+  color: rgb(163 163 163) !important;
+  border-bottom: 1px solid rgb(42 42 42) !important;
+}
+
+
+
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+*,
+*:focus,
+*:hover {
+  outline: none;
+}
+
+.bg-primary {
+    background-color: #FFC107 !important;
+    color: #171717 !important;
+
+}
+
+.bg-primary:hover {
+    background-color: #fcd34d !important;
+
+}
+
+.primary {
+    color: #FFC107 !important;
+}
+.border-primary {
+  border-color: #FFC107 !important;
+}
+
+
+@keyframes fadeIn {
+  from { fill-opacity: 0; } /* set starting point */
+  to { fill-opacity: 1; } /* set ending point */
+}
+
+/* define the animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* apply the animation to the layer */
+.fade-in {
+  animation: fade-in 0.3s ease-in-out;
+}
+
+.fade-in-fast {
+  animation: fade-in 0.1s ease-in-out;
+}
+
+.fade-out-fast {
+    animation: fade-out 0.1s ease-in-out;
+}
+
+.collapsible {
+  height: 0;
+  opacity: 0;
+  padding: 0;
+  overflow: hidden;
+  transition: height 0.5s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out, max-height 0.5s ease-out;
+}
+
+.opened {
+  height: auto;
+  opacity: 1;
+  padding: 16px;
+  max-height: 999px;
+}
+
+.toggle {
+  box-shadow: var(--handleoffsetcalculator) 0 0 2px #262626 inset, 0 0 0 2px #262626 inset, var(--togglehandleborder);
+}

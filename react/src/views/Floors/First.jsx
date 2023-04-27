@@ -27,6 +27,7 @@ export default function First() {
 
     useEffect(() => {
         localStorage.setItem('floor', floor);
+        window.dispatchEvent(new Event("storage"));
     })
 
     useEffect(() => {
@@ -61,8 +62,8 @@ export default function First() {
                               zoom={-50}
                               crs={L.CRS.Simple}
                               scrollWheelZoom={true}
-                              className="bg-neutral-500 z-10"
-                              style={{ height: '80vh', backgroundColor: '#2c2c2c'}}
+                              className="h-screen w-full inset-0 z-10 absolute"
+                              style={{ backgroundColor: '#2c2c2c'}}
                               ref={setMap}>
                     <GeoJSON data={scaleDown(roomsData, 1500)}
                              style={{color: 'transparent', weight: 1, opacity: 0.2}}

@@ -12,6 +12,7 @@ import {
 import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import NewLocationMarker from "../../components/map/NewLocationMarker.jsx";
+import "leaflet-edgebuffer";
 
 export default function Second() {
     const [rooms, setRooms] = useState(null);
@@ -25,6 +26,7 @@ export default function Second() {
 
     useEffect(() => {
         localStorage.setItem('floor', floor);
+        window.dispatchEvent(new Event("storage"));
     })
 
     useEffect(() => {
@@ -57,9 +59,10 @@ export default function Second() {
                               zoom={-50}
                               crs={L.CRS.Simple}
                               scrollWheelZoom={true}
-                              className="bg-neutral-500 z-10"
-                              style={{ height: '80vh', backgroundColor: '#2c2c2c'}}
-                              ref={setMap}>
+                              className=" h-screen w-full inset-0 z-10 absolute"
+                              style={{ backgroundColor: '#2c2c2c'}}
+                              ref={setMap}
+                                removeControl>
                     <GeoJSON data={scaleDown(roomsData, 1500)}
                              style={{color: 'transparent', weight: 1, opacity: 0.2}}
                              onEachFeature={(feature, layer) => onEachRoom(feature, layer, rooms)} >
@@ -86,9 +89,9 @@ export default function Second() {
                         }}  />
                     }
 
-                    <GeoJSON data={scaleDown(buildingData, 1500)} style={buildingStyle} />
+                    <GeoJSON data={scaleDown(buildingData, 1500)} style={buildingStyle}   edgeBufferTiles={5}/>
                     <GeoJSON data={scaleDown(insideBuildingData, 1500)} style={buildingStyle} />
-                    <GeoJSON data={scaleDown(doorsData, 1500)} style={{color: 'green', weight: 1, opacity: 0.2}} />
+                    <GeoJSON data={scaleDown(doorsData, 1500)} style={{color: '#65a30d', weight: 1, opacity: 0.4}} />
                 </MapContainer>
             ) : (
                 <div className="flex justify-center items-center h-80">

@@ -26,15 +26,26 @@ function DeviceDetailWindow() {
     const floor = useSelector(state => state.floor)
     const map = useSelector(state => state.map)
 
+
     const dispatch = useDispatch();
 
     useLayoutEffect(() => {
-        setButtonActive(false)
+
+        // add fade in
+        if(device) {
+            const deviceDetailWindow = document.getElementById('device-details');
+            deviceDetailWindow.classList.add('fade-in');
+            setButtonActive(false)
+            setTimeout(() => {
+                deviceDetailWindow.classList.remove('fade-in');
+            }, 500)
+        }
+
         if(map) {
             setMapRef(map)
         }
         console.log('device changed: ', device)
-    }, [device, dispatch])
+    }, [device])
 
 
     useEffect(() => {
@@ -176,7 +187,7 @@ function DeviceDetailWindow() {
         }
 
         return (
-            <div className="absolute bottom-0 right-0 w-96 z-50">
+            <div id="device-details" className="absolute bottom-0 right-0 w-96 z-50">
                 {buttonActive && !markerPlaced &&
                     <div className="modal-box bg-neutral-900 shadow-lg flex h-auto  animate-pulse">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-info flex-shrink-0 w-6 h-6 mr-2"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -190,7 +201,7 @@ function DeviceDetailWindow() {
                             Confirm device location
                         </div>
                         <div>
-                            <Button onClick={onSubmit} className={`btn btn-wide w-full hover:bg-neutral-700 border-1 border-neutral-700  bg-primary text-white`} >
+                            <Button onClick={onSubmit} className={`btn btn-wide w-full  bg-primary`} >
                                 Save
                             </Button>
                         </div>
