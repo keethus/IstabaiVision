@@ -19,15 +19,22 @@
     "devextreme-react": "22.2.4",
     "flowbite": "^1.6.3",
     "flowbite-react": "^0.3.8",
+    "leaflet": "^1.9.3",
+    "leaflet-edgebuffer": "^1.0.6",
     "moment": "^2.29.4",
+    "proj4leaflet": "^1.0.2",
     "react": "^18.2.0",
     "react-animated-css": "^1.2.1",
     "react-daisyui": "^3.0.2",
     "react-dom": "^18.2.0",
+    "react-expand-animated": "^1.0.2",
+    "react-leaflet": "^4.2.1",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.8.1",
     "react-transition-group": "^4.4.5",
-    "redux": "^4.2.1"
+    "redux": "^4.2.1",
+    "redux-devtools-extension": "^2.13.9",
+    "save-dev": "^0.0.1-security"
   },
   "devDependencies": {
     "@types/react": "^18.0.27",

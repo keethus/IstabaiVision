@@ -1,137 +1,108 @@
-import VectorMap, {
-    Layer,
-    Tooltip,
-    Label, Size, Background, ControlBar,
-} from 'devextreme-react/vector-map';
 import {roomsData, buildingData, insideBuildingData, doorsData} from "./firstFloorPolygons";
-import {useCallback, useEffect, useRef, useState} from "react";
-
-const projection = {
-    to: ([l, lt]) => [l / 1500000, lt / 1500000],
-    from: ([x, y]) => [x * 1500000, y * 1500000],
-};
+import 'leaflet/dist/leaflet.css';
+import {MapContainer, GeoJSON, Tooltip, Popup, Marker, useMapEvents} from 'react-leaflet';
+import L from 'leaflet';
+import {
+    buildingStyle,
+    getDevicesFromFloor,
+    getImageUrl,
+    getRooms,
+    onEachRoom,
+    scaleDown
+} from "../../components/utils.jsx";
+import {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import NewLocationMarker from "../../components/map/NewLocationMarker.jsx";
 
 export default function First() {
     const [rooms, setRooms] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [cursorCoordinates, setCursorCoordinates] = useState(null);
+    const [deviceMarkers, setDeviceMarkers] = useState(null);
+    const [map, setMap] = useState(null);
+    const placingMarker = useSelector(state => state.placingMarker);
+    const devices = JSON.parse(localStorage.getItem('devices'))
+    const dispatch = useDispatch();
+
+    const floor = 1;
 
     useEffect(() => {
-        if (loading === false) {
-            setTimeout(() => {
-                getRooms()
-            }, 10000);
+        localStorage.setItem('floor', floor);
+        window.dispatchEvent(new Event("storage"));
+    })
+
+    useEffect(() => {
+        if(map) {
+            dispatch({ type: 'SET_MAP', payload: map });
+        }
+    }, [map])
+
+    useEffect(() => {
+        async function fetchData() {
+            const roomsData = await getRooms();
+            setRooms(roomsData);
+            const devicesData = await getDevicesFromFloor(1);
+            setDeviceMarkers(devicesData)
+        }
+
+        if (!rooms) {
+            fetchData();
         } else {
-            getRooms()
+            setLoading(false);
         }
-    }, [loading])
 
-    const getRooms = () => {
-        setLoading(true)
-        fetch(`https://api.istabai.com/2/rooms.list.json?api_key=${import.meta.env.VITE_ISTABAI_API_KEY}&home_id=1155`)
-            .then(r => r.json())
-            .then(data => {
-                setLoading(false)
-                setRooms(data)
-                console.log('istabai data', data)
+    }, [rooms]);
 
-            })
-            .catch(e => {
-                setLoading(false)
-                console.log('istabai error', e)
-            })
-    }
 
-    const getCoords = (e) => {
-        setCursorCoordinates(e.component.convertToGeo(e.event.x, e.event.y));
-        alert(cursorCoordinates);
-    }
 
-    const customizeTooltip = (arg) => {
-        if (arg.layer.name === 'rooms') {
-            const room = rooms.rooms.find(room => room.id === arg.attribute('id'));
-            let motionDate;
-            if (room) {
-                if (room.has_motion_sensor) {
-                    motionDate = new Date(room.last_motion * 1000);
-                    return {
-                        text: `Temperature: ${room.temperature} °C
-                            Co2: ${room.co2}
-                            Humidity: ${room.humidity}%
-                            Motion: ${motionDate.toLocaleString()}`
-                    };
-                } else {
-                    return {
-                        text: `Temp: ${room.temperature} °C
-                        Co2: ${room.co2}
-                        Humidity: ${room.humidity}%`
-                    };
-                }
-            } else {
-                return {
-                    text: `No data available for this room.`
-                };
-            }
-        }
-        return null;
-    };
 
     return (
-        <div className="p-6 animate__animated animate__fadeIn">
-            <VectorMap
-                id="vector-map"
-                projection={projection}
-                zoomFactor={4}
-                maxZoomFactor={20}
-                onClick={getCoords}
-                panningEnabled={true}
-            >
-                <Background
-                    color={'#2c2c2c'}
-                    borderColor={'#2c2c2c'}
-                />
-                <ControlBar
-                    enabled={false}
-                />
-                <Size height={600}/>
-                <Layer
-                    dataSource={buildingData}
-                    hoverEnabled={false}
-                    name="building"
-                    color="#636363">
-                </Layer>
-                <Layer
-                    dataSource={insideBuildingData}
-                    hoverEnabled={false}
-                    name="building"
-                    color="#636363">
-                </Layer>
-                <Layer
-                    dataSource={doorsData}
-                    name="doors"
-                    borderWidth={2}
-                    color="green">
-                    <Tooltip
-                        enabled={true}
-                        customizeTooltip={customizeTooltip}
-                    ></Tooltip>
-                </Layer>
-                <Layer
-                    dataSource={roomsData}
-                    name="rooms"
-                    borderWidth={2}
-                    color="transparent">
-                    <Label enabled={true} dataField="name" color="red" className="text-gray-200"></Label>
-                </Layer>
+        <div>
+            {!loading ? (
+                <MapContainer center={[0, 0]}
+                              zoom={-50}
+                              crs={L.CRS.Simple}
+                              scrollWheelZoom={true}
+                              className="h-screen w-full inset-0 z-10 absolute"
+                              style={{ backgroundColor: '#2c2c2c'}}
+                              ref={setMap}>
+                    <GeoJSON data={scaleDown(roomsData, 1500)}
+                             style={{color: 'transparent', weight: 1, opacity: 0.2}}
+                             onEachFeature={(feature, layer) => onEachRoom(feature, layer, rooms)} >
+                    </GeoJSON>
+                    {placingMarker && <NewLocationMarker floor={floor} />}
 
-                <Tooltip
-                    enabled={true}
-                    customizeTooltip={customizeTooltip}
-                ></Tooltip>
-            </VectorMap>
+                    {deviceMarkers && map &&
+                        <GeoJSON data={deviceMarkers} pointToLayer={(feature, latlng) => {
+                            const { url } = feature.properties;
+                            const icon = L.divIcon({
+                                html: url,
+                                className: 'bg-transparent',
+                                iconSize: [32, 32], // adjust as needed
+                                iconAnchor: [16, 0] // adjust as needed
+                            });
+                            return L.marker(latlng, { icon });
+                        }} onEachFeature={(feature, layer) => {
+                            const text = `<b> ${feature.properties.text} </b>`;
+                            layer.bindTooltip(text, {direction: 'top', offset: [0, 0]});
+                            layer.on('click', (e) => {
+                                const matchedDevice = devices.find((d) => d.id.toString() === feature.properties.text);
+                                dispatch({type: 'SET_DEVICE_DETAILS', payload: matchedDevice});
+                            });
+                        }}  />
+                    }
+
+                    <GeoJSON data={scaleDown(buildingData, 1500)} style={buildingStyle} />
+                    <GeoJSON data={scaleDown(insideBuildingData, 1500)} style={buildingStyle} />
+                    <GeoJSON data={scaleDown(doorsData, 1500)} style={{color: 'green', weight: 1, opacity: 0.2}} />
+                </MapContainer>
+            ) : (
+                <div className="flex justify-center items-center h-80">
+                    <div className="animate-spin rounded-full h-28 w-28 border-t-4 border-b-4 border-neutral-900"></div>
+                </div>
+            )
+            }
         </div>
     );
 }
-
 
 
