@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\DeviceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,3 +34,6 @@ Route::delete('/devices/{floor}', [DeviceController::class, 'deleteFromFloor']);
 Route::get('/device/{device}', [DeviceController::class, 'show']);
 Route::delete('/device/{id}', [DeviceController::class, 'delete']);
 
+Route::get('/comments', [CommentController::class, 'index']);
+Route::get('/comments/{room}', [CommentController::class, 'show']);
+Route::post('/comments', [CommentController::class, 'store']);

@@ -19,6 +19,7 @@ export default function Login() {
     axiosClient.post('/login', payload)
       .then(({data}) => {
         setUser(data.user)
+        localStorage.setItem('USER_ID', data.user.id)
         setToken(data.token)
       })
       .catch((err) => {
