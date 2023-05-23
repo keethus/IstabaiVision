@@ -1,8 +1,15 @@
 import {UilExclamationTriangle, UilSetting} from "@iconscout/react-unicons";
 import {useSelector} from "react-redux";
+import {useEffect, useState} from "react";
 
 function SettingsWindow() {
-    const floor = useSelector(state => state.floor)
+    const [floor, setFloor] = useState(localStorage.getItem('floor'));
+
+    useEffect(() => {
+        window.addEventListener('storage', () => {
+            setFloor(localStorage.getItem('floor'))
+        })
+    }, []);
 
     const removeDevicesFromFloor = async () => {
             try {

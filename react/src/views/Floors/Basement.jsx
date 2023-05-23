@@ -22,7 +22,7 @@ export default function Second() {
     const placingMarker = useSelector(state => state.placingMarker);
     const devices = JSON.parse(localStorage.getItem('devices'))
     const dispatch = useDispatch();
-    const floor = 0;
+    const floor = '0';
 
     useEffect(() => {
         localStorage.setItem('floor', floor);
